@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton\Commands;
+namespace Tapp\LaravelHubspot\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class LaravelHubspotCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'laravel-hubspot';
 
     public $description = 'My command';
 
