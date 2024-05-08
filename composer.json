@@ -1,11 +1,7 @@
 {
-    "name": "tappnetwork/laravel-hubspot",
+    "name": "tapp/laravel-hubspot",
     "description": "This is my package laravel-hubspot",
-    "keywords": [
-        "TappNetwork",
-        "laravel",
-        "laravel-hubspot"
-    ],
+    "keywords": ["TappNetwork", "laravel", "laravel-hubspot"],
     "homepage": "https://github.com/tappnetwork/laravel-hubspot",
     "license": "MIT",
     "authors": [
@@ -17,8 +13,9 @@
     ],
     "require": {
         "php": "^8.2",
-        "spatie/laravel-package-tools": "^1.16",
-        "illuminate/contracts": "^10.0||^11.0"
+        "hubspot/api-client": "^11.1",
+        "illuminate/contracts": "^10.0||^11.0",
+        "spatie/laravel-package-tools": "^1.16"
     },
     "require-dev": {
         "laravel/pint": "^1.14",

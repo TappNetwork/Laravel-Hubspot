@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Facade;
 /**
  * @see \Tapp\LaravelHubspot\LaravelHubspot
  */
-class LaravelHubspot extends Facade
+class Hubspot extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
