@@ -40,21 +40,44 @@ This is the contents of the published config file:
 
 ```php
 return [
+    'api_key' => env('HUBSPOT_TOKEN'),
+    'log_requests' => env('HUBSPOT_LOG_REQUESTS', true),
+    'property_group' => env('HUBSPOT_PROPERTY_GROUP', 'app_user_profile'),
+    'property_group_label' => env('HUBSPOT_PROPERTY_GROUP_LABEL', 'App User Profile'),
 ];
-```
-
-Optionally, you can publish the views using
-
-```bash
-php artisan vendor:publish --tag="laravel-hubspot-views"
 ```
 
 ## Usage
 
+### API Key
+Publish the config, add your api key to the env
+
+### User Model
+Add the trait to your user model and define any fields to the $hubspotMap property that will determine the data sent to HubSpot. You may use dot notation to access data from relations. For further customization, use [Laravel's accessor pattern](https://laravel.com/docs/11.x/eloquent-mutators#defining-an-accessor)
 ```php
-$laravelHubspot = new Tapp\LaravelHubspot();
-echo $laravelHubspot->echoPhrase('Hello, Tapp!');
+use Tapp\LaravelHubspot\Models\HubspotContact;
+
+class User extends Authenticatable 
+{
+    use HubspotContact; 
+
+    public array $hubspotMap = [
+        'email' => 'email',
+        'first_name' => 'first_name',
+        'last_name' => 'last_name',
+        'user_type' => 'type.name',
+    ];
 ```
+
+### Create HubSpot Properties
+run the following command to create the property group and properties.
+
+``` bash
+php artisan hubspot:sync-properties
+```
+
+### Sync to HubSpot
+The package uses model events to create or update contacts in HubSpot. Try registering a user and see that they have been created in HubSpot with properties from the $hubspotMap array.
 
 ## Testing
 

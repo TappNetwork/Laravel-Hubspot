@@ -41,9 +41,9 @@ class SyncHubspotProperties extends Command
      */
     public function handle(): int
     {
-        $this->createPropertyGroup('contact', 'app_user_profile', 'App User Profile');
+        $this->createPropertyGroup('contact', config('hubspot.property_group'), config('hubspot.property_group_label'));
 
-        $this->syncProperties('contact', \App\Models\User::class, 'app_user_profile');
+        $this->syncProperties('contact', \App\Models\User::class, config('hubspot.property_group'));
 
         return Command::SUCCESS;
     }
