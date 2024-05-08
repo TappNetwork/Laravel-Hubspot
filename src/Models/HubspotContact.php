@@ -32,7 +32,7 @@ trait HubspotContact
 
             $model->hubspot_id = $hubspotContact['id'];
         } catch (ApiException $e) {
-            Log::error('Error creating hubspot contact: ' . $e->getResponseBody());
+            Log::error('Error creating hubspot contact: '.$e->getResponseBody());
         }
 
         // TODO associate company from email domain with contact
