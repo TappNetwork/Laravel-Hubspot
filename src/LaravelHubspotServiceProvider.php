@@ -2,15 +2,14 @@
 
 namespace Tapp\LaravelHubspot;
 
-use Spatie\LaravelPackageTools\Package;
-use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Tapp\LaravelHubspot\Commands\SyncHubspotProperties;
-use Tapp\LaravelHubspot\LaravelHubspot;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Utils;
 use Psr\Http\Message\RequestInterface;
+use Spatie\LaravelPackageTools\Package;
+use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Tapp\LaravelHubspot\Commands\SyncHubspotProperties;
 
 class LaravelHubspotServiceProvider extends PackageServiceProvider
 {
@@ -38,14 +37,13 @@ class LaravelHubspotServiceProvider extends PackageServiceProvider
 
             $stack->push(Middleware::mapRequest(function (RequestInterface $r) {
                 if (config('hubspot.log_requests')) {
-                    \Log::info('Hubspot Request: ' . $r->getMethod() . ' ' . $r->getUri());
+                    \Log::info('Hubspot Request: '.$r->getMethod().' '.$r->getUri());
                 }
 
                 return $r;
             }));
 
             $client = new Client(['handler' => $stack]);
-
 
             return LaravelHubspot::createWithAccessToken(config('hubspot.api_key'), $client);
         });
