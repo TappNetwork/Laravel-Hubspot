@@ -27,9 +27,13 @@ trait HubspotContact
 
     public static function createHubspotContact($model): void
     {
-        $hubspotContact = Hubspot::crm()->contacts()->basicApi()->create($model->hubspotPropertiesObject());
+        try {
+            $hubspotContact = Hubspot::crm()->contacts()->basicApi()->create($model->hubspotPropertiesObject());
 
-        $model->hubspot_id = $hubspotContact['id'];
+            $model->hubspot_id = $hubspotContact['id'];
+        } catch (ApiException $e) {
+            Log::error('Error creating hubspot contact: ' . $e->getResponseBody());
+        }
 
         // TODO associate company from email domain with contact
         // $domain = preg_replace('/[^@]+@/i', '', $email);
@@ -59,7 +63,7 @@ trait HubspotContact
     {
         try {
             if ($model->hubspot_id) {
-                $hubspotContact = Hubspot::crm()->contacts()->basicApi()->getById($model->id, null, null, null, false, 'email');
+                $hubspotContact = Hubspot::crm()->contacts()->basicApi()->getById($model->id, null, null, null, false, 'id');
             } else {
                 $hubspotContact = Hubspot::crm()->contacts()->basicApi()->getById($model->email, null, null, null, false, 'email');
 
