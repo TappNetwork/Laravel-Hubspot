@@ -2,13 +2,13 @@
 
 namespace Tapp\LaravelHubspot\Commands;
 
+use HubSpot\Client\Crm\Properties\ApiException;
 use HubSpot\Client\Crm\Properties\Model\BatchInputPropertyCreate;
 use HubSpot\Client\Crm\Properties\Model\PropertyCreate;
-use Illuminate\Console\Command;
-use Tapp\LaravelHubspot\Facades\Hubspot;
-use HubSpot\Client\Crm\Properties\ApiException;
 use HubSpot\Client\Crm\Properties\Model\PropertyGroupCreate;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+use Tapp\LaravelHubspot\Facades\Hubspot;
 
 class SyncHubspotProperties extends Command
 {
@@ -59,7 +59,7 @@ class SyncHubspotProperties extends Command
         $missingProperties = collect($syncProperties)->diff($hubspotProperties);
 
         if ($missingProperties->isNotEmpty()) {
-            $this->line("creating {$object} properties: " . $missingProperties->implode(', '));
+            $this->line("creating {$object} properties: ".$missingProperties->implode(', '));
         } else {
             $this->info("{$object} properties already exist");
 
@@ -81,7 +81,7 @@ class SyncHubspotProperties extends Command
         try {
             $response = Hubspot::crm()->properties()->batchApi()->create($object, $data);
         } catch (ApiException $e) {
-            $this->info('Error creating properties. ' . $e->getResponseBody());
+            $this->info('Error creating properties. '.$e->getResponseBody());
 
             Log::error($e);
         }
@@ -100,7 +100,7 @@ class SyncHubspotProperties extends Command
         try {
             return Hubspot::crm()->properties()->groupsApi()->create($object, $propertyGroupCreate);
         } catch (ApiException $e) {
-            $this->info('Error creating property group. ' . $e->getMessage());
+            $this->info('Error creating property group. '.$e->getMessage());
 
             Log::error($e);
         }

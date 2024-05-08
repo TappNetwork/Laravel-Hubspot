@@ -2,15 +2,15 @@
 
 namespace Tapp\LaravelHubspot\Models;
 
-use Tapp\LaravelHubspot\Facades\Hubspot;
-use Illuminate\Database\Eloquent\Model;
 use HubSpot\Client\Crm\Companies\Model\PublicObjectSearchRequest as CompanySearch;
 use HubSpot\Client\Crm\Companies\Model\SimplePublicObjectInput as CompanyObject;
+use HubSpot\Client\Crm\Contacts\ApiException;
 use HubSpot\Client\Crm\Contacts\Model\Filter;
 use HubSpot\Client\Crm\Contacts\Model\FilterGroup;
 use HubSpot\Client\Crm\Contacts\Model\SimplePublicObjectInput as ContactObject;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
-use HubSpot\Client\Crm\Contacts\ApiException;
+use Tapp\LaravelHubspot\Facades\Hubspot;
 
 trait HubspotContact
 {
@@ -18,12 +18,10 @@ trait HubspotContact
 
     public static function bootHubspotContact(): void
     {
-        static::creating(fn (Model $model) =>
-            static::updateOrCreateHubspotContact($model)
+        static::creating(fn (Model $model) => static::updateOrCreateHubspotContact($model)
         );
 
-        static::updating(fn (Model $model) =>
-            static::updateOrCreateHubspotContact($model)
+        static::updating(fn (Model $model) => static::updateOrCreateHubspotContact($model)
         );
     }
 
@@ -42,7 +40,7 @@ trait HubspotContact
     public static function updateHubspotContact($model): void
     {
         if (! $model->hubspot_id) {
-            throw new \Exception('Hubspot ID missing. Cannot update contact: '. $model->email);
+            throw new \Exception('Hubspot ID missing. Cannot update contact: '.$model->email);
         }
 
         try {
@@ -82,7 +80,7 @@ trait HubspotContact
     /**
      * get properties to be synced with hubspot
      */
-    public function hubspotProperties(): Array
+    public function hubspotProperties(): array
     {
         $properties = [];
 
