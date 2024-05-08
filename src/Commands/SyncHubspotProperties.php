@@ -54,7 +54,7 @@ class SyncHubspotProperties extends Command
 
         $hubspotProperties = collect($response->getResults())->pluck('name');
 
-        $syncProperties = array_keys((new $model)->hubspotProperties());
+        $syncProperties = array_keys((new $model)->hubspotMap);
 
         $missingProperties = collect($syncProperties)->diff($hubspotProperties);
 
@@ -81,7 +81,7 @@ class SyncHubspotProperties extends Command
         try {
             $response = Hubspot::crm()->properties()->batchApi()->create($object, $data);
         } catch (ApiException $e) {
-            $this->info('Error creating properties. '.$e->getResponseBody());
+            $this->warn('Error creating properties. '.$e->getResponseBody());
 
             Log::error($e);
         }
@@ -100,7 +100,7 @@ class SyncHubspotProperties extends Command
         try {
             return Hubspot::crm()->properties()->groupsApi()->create($object, $propertyGroupCreate);
         } catch (ApiException $e) {
-            $this->info('Error creating property group. '.$e->getMessage());
+            $this->warn('Error creating property group. '.$e->getResponseBody());
 
             Log::error($e);
         }
