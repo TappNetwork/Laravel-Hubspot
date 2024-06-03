@@ -11,6 +11,8 @@ use HubSpot\Client\Crm\Contacts\Model\SimplePublicObjectInput as ContactObject;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Tapp\LaravelHubspot\Facades\Hubspot;
+use HubSpot\Client\Crm\Associations\V4\ApiException as AssociationsApiException;
+use HubSpot\Client\Crm\Associations\V4\Model\AssociationSpec;
 
 trait HubspotContact
 {
@@ -25,30 +27,35 @@ trait HubspotContact
         );
     }
 
-    public static function createHubspotContact($model): void
+    public static function createHubspotContact($model)
     {
         try {
             $hubspotContact = Hubspot::crm()->contacts()->basicApi()->create($model->hubspotPropertiesObject());
 
             $model->hubspot_id = $hubspotContact['id'];
         } catch (ApiException $e) {
+            throw new \Exception('Error creating hubspot contact: '.$e->getResponseBody());
             Log::error('Error creating hubspot contact: '.$e->getResponseBody());
+
+            return;
         }
 
-        // TODO associate company from email domain with contact
-        // $domain = preg_replace('/[^@]+@/i', '', $email);
-        // $hubspotCompany = static::findOrCreateCompanyByDomain($domain);
-        // $this->associateCompanyWithContact($hubspotCompany['id'], $hubspotContact['id']);
+        $domain = preg_replace('/[^@]+@/i', '', $model->email);
+        $hubspotCompany = static::findOrCreateCompanyByDomain($domain);
+
+        static::associateCompanyWithContact($hubspotCompany['id'], $hubspotContact['id']);
+
+        return $hubspotContact;
     }
 
-    public static function updateHubspotContact($model): void
+    public static function updateHubspotContact($model)
     {
         if (! $model->hubspot_id) {
             throw new \Exception('Hubspot ID missing. Cannot update contact: '.$model->email);
         }
 
         try {
-            Hubspot::crm()->contacts()->basicApi()->update($model->hubspot_id, $model->hubspotPropertiesObject());
+            return Hubspot::crm()->contacts()->basicApi()->update($model->hubspot_id, $model->hubspotPropertiesObject());
         } catch (ApiException $e) {
             Log::error('Hubspot contact update failed', ['email' => $model->email]);
         }
@@ -62,13 +69,14 @@ trait HubspotContact
     public static function updateOrCreateHubspotContact($model)
     {
         try {
-            if ($model->hubspot_id) {
-                $hubspotContact = Hubspot::crm()->contacts()->basicApi()->getById($model->id, null, null, null, false, 'id');
-            } else {
+            // TODO get by ID is unreliable (404 with api but works with web UI)
+            // if ($model->hubspot_id) {
+                // $hubspotContact = Hubspot::crm()->contacts()->basicApi()->getById($model->hubspot_id, null, null, null, false, 'id');
+            // } else {
                 $hubspotContact = Hubspot::crm()->contacts()->basicApi()->getById($model->email, null, null, null, false, 'email');
 
                 $model->hubspot_id = $hubspotContact['id'];
-            }
+            // }
         } catch (ApiException $e) {
             // catch 404 error
             Log::debug('Hubspot contact not found. Creating', ['email' => $model->email]);
@@ -145,17 +153,17 @@ trait HubspotContact
         }
     }
 
-    /**
-     * TODO untested
-     */
     public static function associateCompanyWithContact(string $companyId, string $contactId)
     {
-        $apiResponse = Hubspot::crm()->contacts()->associationsApi()
-            ->create(
-                $contactId,
-                'companies',
-                $companyId,
-                'contact_to_company'
-            );
+        $associationSpec = new AssociationSpec([
+            'association_category' => 'HUBSPOT_DEFINED',
+            'association_type_id' => 1
+        ]);
+
+        try {
+            $apiResponse = Hubspot::crm()->associations()->v4()->basicApi()->create('contact', $contactId, 'company', $companyId, [$associationSpec]);
+        } catch (AssociationsApiException $e) {
+            echo "Exception when calling basic_api->create: ", $e->getMessage();
+        }
     }
 }
