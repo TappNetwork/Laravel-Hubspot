@@ -26,7 +26,7 @@ composer require tappnetwork/laravel-hubspot
 You can publish and run the migrations with:
 
 ```bash
-php artisan vendor:publish --tag="laravel-hubspot-migrations"
+php artisan vendor:publish --tag="hubspot-migrations"
 php artisan migrate
 ```
 
