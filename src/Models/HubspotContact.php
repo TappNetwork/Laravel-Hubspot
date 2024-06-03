@@ -2,6 +2,8 @@
 
 namespace Tapp\LaravelHubspot\Models;
 
+use HubSpot\Client\Crm\Associations\V4\ApiException as AssociationsApiException;
+use HubSpot\Client\Crm\Associations\V4\Model\AssociationSpec;
 use HubSpot\Client\Crm\Companies\Model\PublicObjectSearchRequest as CompanySearch;
 use HubSpot\Client\Crm\Companies\Model\SimplePublicObjectInput as CompanyObject;
 use HubSpot\Client\Crm\Contacts\ApiException;
@@ -11,8 +13,6 @@ use HubSpot\Client\Crm\Contacts\Model\SimplePublicObjectInput as ContactObject;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Tapp\LaravelHubspot\Facades\Hubspot;
-use HubSpot\Client\Crm\Associations\V4\ApiException as AssociationsApiException;
-use HubSpot\Client\Crm\Associations\V4\Model\AssociationSpec;
 
 trait HubspotContact
 {
@@ -71,11 +71,11 @@ trait HubspotContact
         try {
             // TODO get by ID is unreliable (404 with api but works with web UI)
             // if ($model->hubspot_id) {
-                // $hubspotContact = Hubspot::crm()->contacts()->basicApi()->getById($model->hubspot_id, null, null, null, false, 'id');
+            // $hubspotContact = Hubspot::crm()->contacts()->basicApi()->getById($model->hubspot_id, null, null, null, false, 'id');
             // } else {
-                $hubspotContact = Hubspot::crm()->contacts()->basicApi()->getById($model->email, null, null, null, false, 'email');
+            $hubspotContact = Hubspot::crm()->contacts()->basicApi()->getById($model->email, null, null, null, false, 'email');
 
-                $model->hubspot_id = $hubspotContact['id'];
+            $model->hubspot_id = $hubspotContact['id'];
             // }
         } catch (ApiException $e) {
             // catch 404 error
@@ -157,13 +157,13 @@ trait HubspotContact
     {
         $associationSpec = new AssociationSpec([
             'association_category' => 'HUBSPOT_DEFINED',
-            'association_type_id' => 1
+            'association_type_id' => 1,
         ]);
 
         try {
             $apiResponse = Hubspot::crm()->associations()->v4()->basicApi()->create('contact', $contactId, 'company', $companyId, [$associationSpec]);
         } catch (AssociationsApiException $e) {
-            echo "Exception when calling basic_api->create: ", $e->getMessage();
+            echo 'Exception when calling basic_api->create: ', $e->getMessage();
         }
     }
 }
