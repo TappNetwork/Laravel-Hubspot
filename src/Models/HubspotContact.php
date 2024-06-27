@@ -20,11 +20,9 @@ trait HubspotContact
 
     public static function bootHubspotContact(): void
     {
-        static::creating(fn (Model $model) => static::updateOrCreateHubspotContact($model)
-        );
+        static::creating(fn (Model $model) => static::updateOrCreateHubspotContact($model));
 
-        static::updating(fn (Model $model) => static::updateOrCreateHubspotContact($model)
-        );
+        static::updating(fn (Model $model) => static::updateOrCreateHubspotContact($model));
     }
 
     public static function createHubspotContact($model)
@@ -68,6 +66,15 @@ trait HubspotContact
      */
     public static function updateOrCreateHubspotContact($model)
     {
+        if (config('hubspot.disabled')) {
+            return;
+        }
+
+        // TODO this does not support using dot notation in map
+        // if ($model->isClean($model->hubspotMap)) {
+        //     return;
+        // }
+
         try {
             // TODO get by ID is unreliable (404 with api but works with web UI)
             // if ($model->hubspot_id) {

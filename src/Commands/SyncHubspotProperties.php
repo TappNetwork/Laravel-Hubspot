@@ -102,7 +102,6 @@ class SyncHubspotProperties extends Command
         ]);
 
         try {
-            // @phpstan-ignore-next-line
             return Hubspot::crm()->properties()->groupsApi()->create($object, $propertyGroupCreate);
         } catch (ApiException $e) {
             $this->warn('Error creating property group. '.$e->getResponseBody());
