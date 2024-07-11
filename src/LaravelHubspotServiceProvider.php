@@ -30,7 +30,7 @@ class LaravelHubspotServiceProvider extends PackageServiceProvider
 
     public function bootingPackage()
     {
-        if (config('hubspot.disabled')) {
+        if (config('hubspot.disabled') || ! config('hubspot.api_key')) {
             return;
         }
 
