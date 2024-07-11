@@ -30,6 +30,10 @@ class LaravelHubspotServiceProvider extends PackageServiceProvider
 
     public function bootingPackage()
     {
+        if (config('hubspot.disabled')) {
+            return;
+        }
+
         $this->app->bind(LaravelHubspot::class, function ($app) {
 
             $stack = new HandlerStack();
@@ -37,7 +41,7 @@ class LaravelHubspotServiceProvider extends PackageServiceProvider
 
             $stack->push(Middleware::mapRequest(function (RequestInterface $r) {
                 if (config('hubspot.log_requests')) {
-                    \Log::info('Hubspot Request: '.$r->getMethod().' '.$r->getUri());
+                    \Log::info('Hubspot Request: ' . $r->getMethod() . ' ' . $r->getUri());
                 }
 
                 return $r;
