@@ -4,6 +4,4 @@ namespace Tapp\LaravelHubspot;
 
 use HubSpot\Factory;
 
-class LaravelHubspot extends Factory
-{
-}
+class LaravelHubspot extends Factory {}
