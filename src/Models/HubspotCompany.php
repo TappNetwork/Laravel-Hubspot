@@ -14,62 +14,29 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Tapp\LaravelHubspot\Facades\Hubspot;
 
-trait HubspotContact
+trait HubspotCompany
 {
     // public array $hubspotMap = [];
 
-    public static function bootHubspotContact(): void
+    public static function bootHubspotCompany(): void
     {
-        static::creating(fn (Model $model) => static::updateOrCreateHubspotContact($model));
+        static::creating(fn (Model $model) => static::updateOrCreateHubspotCompany($model));
 
-        static::updating(fn (Model $model) => static::updateOrCreateHubspotContact($model));
-    }
-
-    public static function createHubspotContact($model)
-    {
-        try {
-            $hubspotContact = Hubspot::crm()->contacts()->basicApi()->create($model->hubspotPropertiesObject());
-
-            $model->hubspot_id = $hubspotContact['id'];
-        } catch (ApiException $e) {
-            throw new \Exception('Error creating hubspot contact: '.$e->getResponseBody());
-            Log::error('Error creating hubspot contact: '.$e->getResponseBody());
-
-            return;
-        }
-
-        // $domain = preg_replace('/[^@]+@/i', '', $model->email);
-        // $hubspotCompany = static::findOrCreateCompanyByDomain($domain);
-        // static::associateCompanyWithContact($hubspotCompany['id'], $hubspotContact['id']);
-
-        return $hubspotContact;
-    }
-
-    public static function updateHubspotContact($model)
-    {
-        if (! $model->hubspot_id) {
-            throw new \Exception('Hubspot ID missing. Cannot update contact: '.$model->email);
-        }
-
-        try {
-            return Hubspot::crm()->contacts()->basicApi()->update($model->hubspot_id, $model->hubspotPropertiesObject());
-        } catch (ApiException $e) {
-            Log::error('Hubspot contact update failed', ['email' => $model->email]);
-        }
+        static::updating(fn (Model $model) => static::updateOrCreateHubspotCompany($model));
     }
 
     /*
-     * if the model has a hubspot_id, find the contact by id and update
-     * if the model has an email, find the contact by email and update
-     * if the fetch requests fail, create a new contact
+     * if the model has a hubspot_id, find the company by id and update
+     * if the model has an email, find the company by email and update
+     * if the fetch requests fail, create a new company
      */
-    public static function updateOrCreateHubspotContact($model)
+    public static function updateOrCreateHubspotCompany($model)
     {
         if (config('hubspot.disabled')) {
             return;
         }
 
-        // TODO this does not support using dot notation in map
+        // TODO this does not support using dot notation in map. need to compare values in api with DB
         // if ($model->isClean($model->hubspotMap)) {
         //     return;
         // }
@@ -77,22 +44,55 @@ trait HubspotContact
         try {
             // TODO get by ID is unreliable (404 with api but works with web UI)
             // if ($model->hubspot_id) {
-            // $hubspotContact = Hubspot::crm()->contacts()->basicApi()->getById($model->hubspot_id, null, null, null, false, 'id');
+            // $hubspotCompany = Hubspot::crm()->companies()->basicApi()->getById($model->hubspot_id, null, null, null, false, 'id');
             // } else {
-            $hubspotContact = Hubspot::crm()->contacts()->basicApi()->getById($model->email, null, null, null, false, 'email');
+            $hubspotCompany = Hubspot::crm()->companies()->basicApi()->getById($model->email, null, null, null, false, 'email');
 
-            $model->hubspot_id = $hubspotContact['id'];
+            $model->hubspot_id = $hubspotCompany['id'];
             // }
         } catch (ApiException $e) {
             // catch 404 error
-            Log::debug('Hubspot contact not found. Creating', ['email' => $model->email]);
+            Log::debug('Hubspot company not found. Creating', ['email' => $model->email]);
 
             // return so we dont try to update afterwards
-            return static::createHubspotContact($model);
+            return static::createHubspotCompany($model);
         }
 
         // outside of try block
-        return static::updateHubspotContact($model);
+        return static::updateHubspotCompany($model);
+    }
+
+    public static function createHubspotCompany($model)
+    {
+        try {
+            $hubspotCompany = Hubspot::crm()->companies()->basicApi()->create($model->hubspotPropertiesObject());
+
+            $model->hubspot_id = $hubspotCompany['id'];
+        } catch (ApiException $e) {
+            throw new \Exception('Error creating hubspot company: '.$e->getResponseBody());
+            Log::error('Error creating hubspot company: '.$e->getResponseBody());
+
+            return;
+        }
+
+        // $domain = preg_replace('/[^@]+@/i', '', $model->email);
+        // $hubspotCompany = static::findOrCreateCompanyByDomain($domain);
+        // static::associateCompanyWithCompany($hubspotCompany['id'], $hubspotCompany['id']);
+
+        return $hubspotCompany;
+    }
+
+    public static function updateHubspotCompany($model)
+    {
+        if (! $model->hubspot_id) {
+            throw new \Exception('Hubspot ID missing. Cannot update company: '.$model->email);
+        }
+
+        try {
+            return Hubspot::crm()->companies()->basicApi()->update($model->hubspot_id, $model->hubspotPropertiesObject());
+        } catch (ApiException $e) {
+            Log::error('Hubspot company update failed', ['email' => $model->email]);
+        }
     }
 
     /**
@@ -116,9 +116,9 @@ trait HubspotContact
     /**
      * get properties to be synced with hubspot
      */
-    public function hubspotPropertiesObject(): ContactObject
+    public function hubspotPropertiesObject(): CompanyObject
     {
-        return new ContactObject(['properties' => $this->hubspotProperties()]);
+        return new CompanyObject(['properties' => $this->hubspotProperties()]);
     }
 
     /**
@@ -159,7 +159,7 @@ trait HubspotContact
         }
     }
 
-    public static function associateCompanyWithContact(string $companyId, string $contactId)
+    public static function associateCompanyWithCompany(string $companyId, string $companyId)
     {
         $associationSpec = new AssociationSpec([
             'association_category' => 'HUBSPOT_DEFINED',
@@ -167,7 +167,7 @@ trait HubspotContact
         ]);
 
         try {
-            $apiResponse = Hubspot::crm()->associations()->v4()->basicApi()->create('contact', $contactId, 'company', $companyId, [$associationSpec]);
+            $apiResponse = Hubspot::crm()->associations()->v4()->basicApi()->create('company', $companyId, 'company', $companyId, [$associationSpec]);
         } catch (AssociationsApiException $e) {
             echo 'Exception when calling basic_api->create: ', $e->getMessage();
         }
