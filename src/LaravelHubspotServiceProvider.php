@@ -32,7 +32,7 @@ class LaravelHubspotServiceProvider extends PackageServiceProvider
     {
         $this->app->bind(LaravelHubspot::class, function ($app) {
 
-            $stack = new HandlerStack();
+            $stack = new HandlerStack;
             $stack->setHandler(Utils::chooseHandler());
 
             $stack->push(Middleware::mapRequest(function (RequestInterface $r) {
