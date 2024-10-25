@@ -9,7 +9,6 @@ use HubSpot\Client\Crm\Companies\Model\SimplePublicObjectInput as CompanyObject;
 use HubSpot\Client\Crm\Contacts\ApiException;
 use HubSpot\Client\Crm\Contacts\Model\Filter;
 use HubSpot\Client\Crm\Contacts\Model\FilterGroup;
-use HubSpot\Client\Crm\Contacts\Model\SimplePublicObjectInput as ContactObject;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Tapp\LaravelHubspot\Facades\Hubspot;
