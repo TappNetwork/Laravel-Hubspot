@@ -75,14 +75,13 @@ trait HubspotContact
         // }
 
         try {
-            // TODO get by ID is unreliable (404 with api but works with web UI)
-            // if ($model->hubspot_id) {
-            // $hubspotContact = Hubspot::crm()->contacts()->basicApi()->getById($model->hubspot_id, null, null, null, false, 'id');
-            // } else {
-            $hubspotContact = Hubspot::crm()->contacts()->basicApi()->getById($model->email, null, null, null, false, 'email');
+            if ($model->hubspot_id) {
+                $hubspotContact = Hubspot::crm()->contacts()->basicApi()->getById($model->hubspot_id);
+            } else {
+                $hubspotContact = Hubspot::crm()->contacts()->basicApi()->getById($model->email, null, null, null, false, 'email');
 
-            $model->hubspot_id = $hubspotContact['id'];
-            // }
+                $model->hubspot_id = $hubspotContact['id'];
+            }
         } catch (ApiException $e) {
             // catch 404 error
             Log::debug('Hubspot contact not found. Creating', ['email' => $model->email]);
