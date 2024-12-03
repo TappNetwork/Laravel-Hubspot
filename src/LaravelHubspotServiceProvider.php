@@ -9,6 +9,7 @@ use GuzzleHttp\Utils;
 use Psr\Http\Message\RequestInterface;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Tapp\LaravelHubspot\Commands\SyncHubspotContacts;
 use Tapp\LaravelHubspot\Commands\SyncHubspotProperties;
 
 class LaravelHubspotServiceProvider extends PackageServiceProvider
@@ -25,7 +26,8 @@ class LaravelHubspotServiceProvider extends PackageServiceProvider
             ->hasConfigFile()
             ->hasViews()
             ->hasMigration('add_hubspot_id_to_users_table')
-            ->hasCommand(SyncHubspotProperties::class);
+            ->hasCommand(SyncHubspotProperties::class)
+            ->hasCommand(SyncHubspotContacts::class);
     }
 
     public function bootingPackage()
