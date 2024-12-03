@@ -52,7 +52,6 @@ class SyncHubspotProperties extends Command
 
     public function syncProperties($object, $model, $group)
     {
-        // @phpstan-ignore-next-line
         $response = Hubspot::crm()->properties()->coreApi()->getAll($object, false);
 
         $hubspotProperties = collect($response->getResults())->pluck('name');
