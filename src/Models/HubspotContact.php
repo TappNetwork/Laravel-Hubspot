@@ -18,6 +18,8 @@ trait HubspotContact
 {
     // public array $hubspotMap = [];
 
+    // public array $hubspotCompanyMap = [];
+
     public static function bootHubspotContact(): void
     {
         static::creating(fn (Model $model) => static::updateOrCreateHubspotContact($model));
@@ -28,7 +30,7 @@ trait HubspotContact
     public static function createHubspotContact($model)
     {
         try {
-            $hubspotContact = Hubspot::crm()->contacts()->basicApi()->create($model->hubspotPropertiesObject());
+            $hubspotContact = Hubspot::crm()->contacts()->basicApi()->create($model->hubspotPropertiesObject($model->hubspotMap));
 
             $model->hubspot_id = $hubspotContact['id'];
         } catch (ApiException $e) {
@@ -38,8 +40,7 @@ trait HubspotContact
             return;
         }
 
-        $domain = preg_replace('/[^@]+@/i', '', $model->email);
-        $hubspotCompany = static::findOrCreateCompanyByDomain($domain);
+        $hubspotCompany = static::findOrCreateCompany($model->hubspotPropertiesObject($model->hubspotCompanyMap));
 
         static::associateCompanyWithContact($hubspotCompany['id'], $hubspotContact['id']);
 
@@ -53,10 +54,16 @@ trait HubspotContact
         }
 
         try {
-            return Hubspot::crm()->contacts()->basicApi()->update($model->hubspot_id, $model->hubspotPropertiesObject());
+            Hubspot::crm()->contacts()->basicApi()->update($model->hubspot_id, $model->hubspotPropertiesObject($model->hubspotMap));
         } catch (ApiException $e) {
             Log::error('Hubspot contact update failed', ['email' => $model->email]);
         }
+
+        $hubspotCompany = static::findOrCreateCompany($model->hubspotPropertiesObject($model->hubspotCompanyMap));
+
+        static::associateCompanyWithContact($hubspotCompany['id'], $hubspotContact['id']);
+
+        return $hubspotContact;
     }
 
     /*
@@ -98,11 +105,11 @@ trait HubspotContact
     /**
      * get properties to be synced with hubspot
      */
-    public function hubspotProperties(): array
+    public function hubspotProperties(array $map): array
     {
         $properties = [];
 
-        foreach ($this->hubspotMap as $key => $value) {
+        foreach ($map as $key => $value) {
             if (strpos($value, '.')) {
                 $properties[$key] = data_get($this, $value);
             } else {
@@ -116,19 +123,16 @@ trait HubspotContact
     /**
      * get properties to be synced with hubspot
      */
-    public function hubspotPropertiesObject(): ContactObject
+    public function hubspotPropertiesObject(array $map): ContactObject
     {
-        return new ContactObject(['properties' => $this->hubspotProperties()]);
+        return new ContactObject(['properties' => $this->hubspotProperties($map)]);
     }
 
-    /**
-     * TODO untested
-     */
-    public static function findOrCreateCompanyByDomain(string $domain)
+    public static function findOrCreateCompany($properties)
     {
         $filter = new Filter([
-            'value' => $domain,
-            'property_name' => 'domain',
+            'value' => $properties['name'],
+            'property_name' => 'name',
             'operator' => 'EQ',
         ]);
 
@@ -148,7 +152,7 @@ trait HubspotContact
             return $searchResults['results'][0];
         } else {
             $properties = [
-                'domain' => $domain,
+                'na' => $domain,
             ];
 
             $companyObject = new CompanyObject([
