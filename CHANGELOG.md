@@ -2,6 +2,18 @@
 
 All notable changes to `Laravel-Hubspot` will be documented in this file.
 
+## v1.0.6 - 2024-12-23
+
+### What's Changed
+
+* Action updates by @swilla in https://github.com/TappNetwork/Laravel-Hubspot/pull/7
+
+### New Contributors
+
+* @swilla made their first contribution in https://github.com/TappNetwork/Laravel-Hubspot/pull/7
+
+**Full Changelog**: https://github.com/TappNetwork/Laravel-Hubspot/compare/v1.0.5...v1.0.6
+
 ## v1.0.5 - 2024-12-03
 
 ### What's Changed
