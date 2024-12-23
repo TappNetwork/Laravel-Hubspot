@@ -75,24 +75,39 @@ trait HubspotContact
         //     return;
         // }
 
-        try {
-            if ($model->hubspot_id) {
-                $hubspotContact = Hubspot::crm()->contacts()->basicApi()->getById($model->hubspot_id);
-            } else {
-                $hubspotContact = Hubspot::crm()->contacts()->basicApi()->getById($model->email, null, null, null, false, 'email');
+        $hubspotContact = static::getContactByEmailOrId($model);
 
-                $model->hubspot_id = $hubspotContact['id'];
-            }
-        } catch (ApiException $e) {
-            // catch 404 error
-            Log::debug('Hubspot contact not found. Creating', ['email' => $model->email]);
-
-            // return so we dont try to update afterwards
+        if (! $hubspotContact) {
             return static::createHubspotContact($model);
         }
 
         // outside of try block
         return static::updateHubspotContact($model);
+    }
+
+    public static function getContactByEmailOrId($model)
+    {
+        $hubspotContact = null;
+
+        if ($model->hubspot_id) {
+            try {
+                return Hubspot::crm()->contacts()->basicApi()->getById($model->hubspot_id);
+            } catch (ApiException $e) {
+                Log::debug('Hubspot contact not found with id', ['id' => $model->id]);
+            }
+        }
+
+        // if no hubspot id or if id fetch failed, try fetching by email
+        try {
+            $hubspotContact = Hubspot::crm()->contacts()->basicApi()->getById($model->email, null, null, null, false, 'email');
+
+            // dont save to prevent loop from model event
+            $model->hubspot_id = $hubspotContact['id'];
+        } catch (ApiException $e) {
+            Log::debug('Hubspot contact not found with email', ['email' => $model->email]);
+        }
+
+        return $hubspotContact;
     }
 
     /**
