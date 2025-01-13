@@ -16,7 +16,9 @@ use Tapp\LaravelHubspot\Facades\Hubspot;
 
 trait HubspotContact
 {
+    // TODO put these in an interface
     // public array $hubspotMap = [];
+    // public string $hubspotCompanyRelation = '';
 
     public static function bootHubspotContact(): void
     {
@@ -28,7 +30,7 @@ trait HubspotContact
     public static function createHubspotContact($model)
     {
         try {
-            $hubspotContact = Hubspot::crm()->contacts()->basicApi()->create($model->hubspotPropertiesObject());
+            $hubspotContact = Hubspot::crm()->contacts()->basicApi()->create($model->hubspotPropertiesObject($model->hubspotMap));
 
             $model->hubspot_id = $hubspotContact['id'];
         } catch (ApiException $e) {
@@ -38,10 +40,11 @@ trait HubspotContact
             return;
         }
 
-        $domain = preg_replace('/[^@]+@/i', '', $model->email);
-        $hubspotCompany = static::findOrCreateCompanyByDomain($domain);
+        $hubspotCompany = $model->getRelationValue($model->hubspotCompanyRelation);
 
-        static::associateCompanyWithContact($hubspotCompany['id'], $hubspotContact['id']);
+        if ($hubspotCompany) {
+            static::associateCompanyWithContact($hubspotCompany->hubspot_id, $hubspotContact['id']);
+        }
 
         return $hubspotContact;
     }
@@ -53,10 +56,18 @@ trait HubspotContact
         }
 
         try {
-            return Hubspot::crm()->contacts()->basicApi()->update($model->hubspot_id, $model->hubspotPropertiesObject());
+            $hubspotContact = Hubspot::crm()->contacts()->basicApi()->update($model->hubspot_id, $model->hubspotPropertiesObject($model->hubspotMap));
         } catch (ApiException $e) {
             Log::error('Hubspot contact update failed', ['email' => $model->email]);
         }
+
+        $hubspotCompany = $model->getRelationValue($model->hubspotCompanyRelation);
+
+        if ($hubspotCompany) {
+            static::associateCompanyWithContact($hubspotCompany->hubspot_id, $hubspotContact['id']);
+        }
+
+        return $hubspotContact;
     }
 
     /*
@@ -113,11 +124,11 @@ trait HubspotContact
     /**
      * get properties to be synced with hubspot
      */
-    public function hubspotProperties(): array
+    public function hubspotProperties(array $map): array
     {
         $properties = [];
 
-        foreach ($this->hubspotMap as $key => $value) {
+        foreach ($map as $key => $value) {
             if (strpos($value, '.')) {
                 $properties[$key] = data_get($this, $value);
             } else {
@@ -131,19 +142,16 @@ trait HubspotContact
     /**
      * get properties to be synced with hubspot
      */
-    public function hubspotPropertiesObject(): ContactObject
+    public function hubspotPropertiesObject(array $map): ContactObject
     {
-        return new ContactObject(['properties' => $this->hubspotProperties()]);
+        return new ContactObject(['properties' => $this->hubspotProperties($map)]);
     }
 
-    /**
-     * TODO untested
-     */
-    public static function findOrCreateCompanyByDomain(string $domain)
+    public static function findOrCreateCompany($properties)
     {
         $filter = new Filter([
-            'value' => $domain,
-            'property_name' => 'domain',
+            'value' => $properties['name'],
+            'property_name' => 'name',
             'operator' => 'EQ',
         ]);
 
@@ -162,8 +170,10 @@ trait HubspotContact
         if ($companyExists) {
             return $searchResults['results'][0];
         } else {
+            // TODO create company
+            dd('todo create company from relation');
             $properties = [
-                'domain' => $domain,
+                'na' => $domain,
             ];
 
             $companyObject = new CompanyObject([
@@ -184,6 +194,9 @@ trait HubspotContact
         try {
             $apiResponse = Hubspot::crm()->associations()->v4()->basicApi()->create('contact', $contactId, 'company', $companyId, [$associationSpec]);
         } catch (AssociationsApiException $e) {
+            // dd($companyId, $contactId);
+            dd($e);
+            throw ($e);
             echo 'Exception when calling basic_api->create: ', $e->getMessage();
         }
     }
