@@ -196,7 +196,7 @@ trait HubspotContact
         } catch (AssociationsApiException $e) {
             // dd($companyId, $contactId);
             dd($e);
-            throw($e);
+            throw ($e);
             echo 'Exception when calling basic_api->create: ', $e->getMessage();
         }
     }
