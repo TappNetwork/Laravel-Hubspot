@@ -45,12 +45,10 @@ trait HubspotCompany
         }
 
         try {
-            Hubspot::crm()->companies()->basicApi()->update($model->hubspot_id, $model->hubspotPropertiesObject($model->hubspotMap));
+            return Hubspot::crm()->companies()->basicApi()->update($model->hubspot_id, $model->hubspotPropertiesObject($model->hubspotMap));
         } catch (ApiException $e) {
             Log::error('Hubspot company update failed', ['email' => $model->email]);
         }
-
-        return $hubspotCompany;
     }
 
     /*
