@@ -16,9 +16,9 @@ use Tapp\LaravelHubspot\Facades\Hubspot;
 
 trait HubspotContact
 {
+    // TODO put these in an interface
     // public array $hubspotMap = [];
-
-    // public array $hubspotCompanyMap = [];
+    // public string $hubspotCompanyRelation = '';
 
     public static function bootHubspotContact(): void
     {
@@ -40,9 +40,11 @@ trait HubspotContact
             return;
         }
 
-        $hubspotCompany = static::findOrCreateCompany($model->hubspotPropertiesObject($model->hubspotCompanyMap));
+        $hubspotCompany = $model->getRelationValue($model->hubspotCompanyRelation);
 
-        static::associateCompanyWithContact($hubspotCompany['id'], $hubspotContact['id']);
+        if ($hubspotCompany) {
+            static::associateCompanyWithContact($hubspotCompany->hubspot_id, $hubspotContact['id']);
+        }
 
         return $hubspotContact;
     }
@@ -54,14 +56,16 @@ trait HubspotContact
         }
 
         try {
-            Hubspot::crm()->contacts()->basicApi()->update($model->hubspot_id, $model->hubspotPropertiesObject($model->hubspotMap));
+            $hubspotContact = Hubspot::crm()->contacts()->basicApi()->update($model->hubspot_id, $model->hubspotPropertiesObject($model->hubspotMap));
         } catch (ApiException $e) {
             Log::error('Hubspot contact update failed', ['email' => $model->email]);
         }
 
-        $hubspotCompany = static::findOrCreateCompany($model->hubspotPropertiesObject($model->hubspotCompanyMap));
+        $hubspotCompany = $model->getRelationValue($model->hubspotCompanyRelation);
 
-        static::associateCompanyWithContact($hubspotCompany['id'], $hubspotContact['id']);
+        if ($hubspotCompany) {
+            static::associateCompanyWithContact($hubspotCompany->hubspot_id, $hubspotContact['id']);
+        }
 
         return $hubspotContact;
     }
@@ -166,6 +170,8 @@ trait HubspotContact
         if ($companyExists) {
             return $searchResults['results'][0];
         } else {
+            // TODO create company
+            dd('todo create company from relation');
             $properties = [
                 'na' => $domain,
             ];
@@ -188,6 +194,9 @@ trait HubspotContact
         try {
             $apiResponse = Hubspot::crm()->associations()->v4()->basicApi()->create('contact', $contactId, 'company', $companyId, [$associationSpec]);
         } catch (AssociationsApiException $e) {
+            // dd($companyId, $contactId);
+            dd($e);
+            throw($e);
             echo 'Exception when calling basic_api->create: ', $e->getMessage();
         }
     }
