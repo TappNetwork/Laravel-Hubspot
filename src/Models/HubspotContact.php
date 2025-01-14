@@ -4,11 +4,7 @@ namespace Tapp\LaravelHubspot\Models;
 
 use HubSpot\Client\Crm\Associations\V4\ApiException as AssociationsApiException;
 use HubSpot\Client\Crm\Associations\V4\Model\AssociationSpec;
-use HubSpot\Client\Crm\Companies\Model\PublicObjectSearchRequest as CompanySearch;
-use HubSpot\Client\Crm\Companies\Model\SimplePublicObjectInput as CompanyObject;
 use HubSpot\Client\Crm\Contacts\ApiException;
-use HubSpot\Client\Crm\Contacts\Model\Filter;
-use HubSpot\Client\Crm\Contacts\Model\FilterGroup;
 use HubSpot\Client\Crm\Contacts\Model\SimplePublicObjectInput as ContactObject;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
