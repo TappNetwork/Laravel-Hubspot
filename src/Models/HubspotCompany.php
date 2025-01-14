@@ -69,6 +69,8 @@ trait HubspotCompany
 
         $hubspotCompany = static::getCompanyById($model);
 
+        // TODO if no hubspot id or if id fetch failed, try searching by name
+
         if (! $hubspotCompany) {
             return static::createHubspotCompany($model);
         }
@@ -88,16 +90,6 @@ trait HubspotCompany
                 Log::debug('Hubspot company not found with id', ['id' => $model->id]);
             }
         }
-
-        // TODO if no hubspot id or if id fetch failed, try searching by name
-        // try {
-        //     $hubspotCompany = Hubspot::crm()->companies()->basicApi()->getById($model->email, null, null, null, false, 'email');
-
-        //     // dont save to prevent loop from model event
-        //     $model->hubspot_id = $hubspotCompany['id'];
-        // } catch (ApiException $e) {
-        //     Log::debug('Hubspot company not found with email', ['email' => $model->email]);
-        // }
 
         return $hubspotCompany;
     }
@@ -147,8 +139,7 @@ trait HubspotCompany
         try {
             $searchResults = Hubspot::crm()->companies()->searchApi()->doSearch($companySearch);
         } catch (\Exception $e) {
-            // TODO debugging
-            dump($filter, $properties);
+            // dump($filter, $properties);
             // dd($e);
             throw ($e);
         }

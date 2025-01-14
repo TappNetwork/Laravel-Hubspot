@@ -147,43 +147,6 @@ trait HubspotContact
         return new ContactObject(['properties' => $this->hubspotProperties($map)]);
     }
 
-    public static function findOrCreateCompany($properties)
-    {
-        $filter = new Filter([
-            'value' => $properties['name'],
-            'property_name' => 'name',
-            'operator' => 'EQ',
-        ]);
-
-        $filterGroup = new FilterGroup([
-            'filters' => [$filter],
-        ]);
-
-        $companySearch = new CompanySearch([
-            'filter_groups' => [$filterGroup],
-        ]);
-
-        $searchResults = Hubspot::crm()->companies()->searchApi()->doSearch($companySearch);
-
-        $companyExists = $searchResults['total'];
-
-        if ($companyExists) {
-            return $searchResults['results'][0];
-        } else {
-            // TODO create company
-            dd('todo create company from relation');
-            $properties = [
-                'na' => $domain,
-            ];
-
-            $companyObject = new CompanyObject([
-                'properties' => $properties,
-            ]);
-
-            return Hubspot::crm()->companies()->basicApi()->create($companyObject);
-        }
-    }
-
     public static function associateCompanyWithContact(string $companyId, string $contactId)
     {
         $associationSpec = new AssociationSpec([
@@ -192,12 +155,11 @@ trait HubspotContact
         ]);
 
         try {
-            $apiResponse = Hubspot::crm()->associations()->v4()->basicApi()->create('contact', $contactId, 'company', $companyId, [$associationSpec]);
+            return Hubspot::crm()->associations()->v4()->basicApi()->create('contact', $contactId, 'company', $companyId, [$associationSpec]);
         } catch (AssociationsApiException $e) {
             // dd($companyId, $contactId);
-            dd($e);
+            // dd($e);
             throw ($e);
-            echo 'Exception when calling basic_api->create: ', $e->getMessage();
         }
     }
 }
