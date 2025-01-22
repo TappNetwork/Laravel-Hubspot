@@ -54,7 +54,11 @@ trait HubspotContact
         try {
             $hubspotContact = Hubspot::crm()->contacts()->basicApi()->update($model->hubspot_id, $model->hubspotPropertiesObject($model->hubspotMap));
         } catch (ApiException $e) {
-            Log::error('Hubspot contact update failed', ['email' => $model->email]);
+            Log::error('Hubspot contact update failed', [
+                'email' => $model->email,
+                'message' => $e->getMessage(),
+                'response' => $e->getResponseBody()
+            ]);
 
             return;
         }
