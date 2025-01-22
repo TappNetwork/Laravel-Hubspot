@@ -57,7 +57,7 @@ trait HubspotContact
             Log::error('Hubspot contact update failed', [
                 'email' => $model->email,
                 'message' => $e->getMessage(),
-                'response' => $e->getResponseBody()
+                'response' => $e->getResponseBody(),
             ]);
 
             return;
