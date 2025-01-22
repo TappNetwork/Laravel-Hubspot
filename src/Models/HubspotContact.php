@@ -30,8 +30,11 @@ trait HubspotContact
 
             $model->hubspot_id = $hubspotContact['id'];
         } catch (ApiException $e) {
-            throw new \Exception('Error creating hubspot contact: '.$e->getResponseBody());
-            Log::error('Error creating hubspot contact: '.$e->getResponseBody());
+            Log::error('Error creating hubspot contact', [
+                'email' => $model->email,
+                'message' => $e->getMessage(),
+                'response' => $e->getResponseBody()
+            ]);
 
             return;
         }
@@ -106,7 +109,11 @@ trait HubspotContact
             try {
                 return Hubspot::crm()->contacts()->basicApi()->getById($model->hubspot_id);
             } catch (ApiException $e) {
-                Log::debug('Hubspot contact not found with id', ['id' => $model->id]);
+                Log::debug('Hubspot contact not found with id', [
+                    'id' => $model->id,
+                    'message' => $e->getMessage(),
+                    'response' => $e->getResponseBody()
+                ]);
             }
         }
 
@@ -117,7 +124,11 @@ trait HubspotContact
             // dont save to prevent loop from model event
             $model->hubspot_id = $hubspotContact['id'];
         } catch (ApiException $e) {
-            Log::debug('Hubspot contact not found with email', ['email' => $model->email]);
+            Log::debug('Hubspot contact not found with email', [
+                'email' => $model->email,
+                'message' => $e->getMessage(),
+                'response' => $e->getResponseBody()
+            ]);
         }
 
         return $hubspotContact;
