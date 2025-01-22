@@ -33,7 +33,7 @@ trait HubspotContact
             Log::error('Error creating hubspot contact', [
                 'email' => $model->email,
                 'message' => $e->getMessage(),
-                'response' => $e->getResponseBody()
+                'response' => $e->getResponseBody(),
             ]);
 
             return;
@@ -112,7 +112,7 @@ trait HubspotContact
                 Log::debug('Hubspot contact not found with id', [
                     'id' => $model->id,
                     'message' => $e->getMessage(),
-                    'response' => $e->getResponseBody()
+                    'response' => $e->getResponseBody(),
                 ]);
             }
         }
@@ -127,7 +127,7 @@ trait HubspotContact
             Log::debug('Hubspot contact not found with email', [
                 'email' => $model->email,
                 'message' => $e->getMessage(),
-                'response' => $e->getResponseBody()
+                'response' => $e->getResponseBody(),
             ]);
         }
 
