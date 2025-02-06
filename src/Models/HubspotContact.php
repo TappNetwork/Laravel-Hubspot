@@ -41,7 +41,7 @@ trait HubspotContact
 
         $hubspotCompany = $model->getRelationValue($model->hubspotCompanyRelation);
 
-        if ($hubspotCompany && !$hubspotCompany->hubspot_id) {
+        if ($hubspotCompany && ! $hubspotCompany->hubspot_id) {
             $hubspotCompany->touch();
             $hubspotCompany = $hubspotCompany->fresh();
         }
@@ -73,7 +73,7 @@ trait HubspotContact
 
         $hubspotCompany = $model->getRelationValue($model->hubspotCompanyRelation);
 
-        if ($hubspotCompany && !$hubspotCompany->hubspot_id) {
+        if ($hubspotCompany && ! $hubspotCompany->hubspot_id) {
             $hubspotCompany->touch();
             $hubspotCompany = $hubspotCompany->fresh();
         }
