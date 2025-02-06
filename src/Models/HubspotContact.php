@@ -42,7 +42,12 @@ trait HubspotContact
 
         $hubspotCompany = $model->getRelationValue($model->hubspotCompanyRelation);
 
-        if ($hubspotCompany) {
+        if ($hubspotCompany && !$hubspotCompany->hubspot_id) {
+            HubspotCompany::createHubspotCompany($hubspotCompany);
+            $hubspotCompany = $hubspotCompany->fresh();
+        }
+
+        if ($hubspotCompany && $hubspotCompany->hubspot_id) {
             static::associateCompanyWithContact($hubspotCompany->hubspot_id, $hubspotContact['id']);
         }
 
@@ -63,10 +68,14 @@ trait HubspotContact
 
         $hubspotCompany = $model->getRelationValue($model->hubspotCompanyRelation);
 
-        if ($hubspotCompany) {
-            static::associateCompanyWithContact($hubspotCompany->hubspot_id, $hubspotContact['id']);
+        if ($hubspotCompany && !$hubspotCompany->hubspot_id) {
+            HubspotCompany::createHubspotCompany($hubspotCompany);
+            $hubspotCompany = $hubspotCompany->fresh();
         }
 
+        if ($hubspotCompany && $hubspotCompany->hubspot_id) {
+            static::associateCompanyWithContact($hubspotCompany->hubspot_id, $hubspotContact['id']);
+        }
         return $hubspotContact;
     }
 
