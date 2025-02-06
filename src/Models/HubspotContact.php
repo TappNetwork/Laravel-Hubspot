@@ -81,6 +81,7 @@ trait HubspotContact
         if ($hubspotCompany && $hubspotCompany->hubspot_id) {
             static::associateCompanyWithContact($hubspotCompany->hubspot_id, $hubspotContact['id']);
         }
+
         return $hubspotContact;
     }
 

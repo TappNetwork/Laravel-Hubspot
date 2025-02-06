@@ -2,6 +2,15 @@
 
 All notable changes to `Laravel-Hubspot` will be documented in this file.
 
+## v1.0.12 - 2025-02-06
+
+### What's Changed
+
+* Bump dependabot/fetch-metadata from 2.2.0 to 2.3.0 by @dependabot in https://github.com/TappNetwork/Laravel-Hubspot/pull/11
+* Bump aglipanci/laravel-pint-action from 2.4 to 2.5 by @dependabot in https://github.com/TappNetwork/Laravel-Hubspot/pull/12
+
+**Full Changelog**: https://github.com/TappNetwork/Laravel-Hubspot/compare/v1.0.11...v1.0.12
+
 ## v1.0.11 - 2025-01-22
 
 ### What's Changed
