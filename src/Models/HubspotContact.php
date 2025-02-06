@@ -4,11 +4,7 @@ namespace Tapp\LaravelHubspot\Models;
 
 use HubSpot\Client\Crm\Associations\V4\ApiException as AssociationsApiException;
 use HubSpot\Client\Crm\Associations\V4\Model\AssociationSpec;
-use HubSpot\Client\Crm\Companies\Model\PublicObjectSearchRequest as CompanySearch;
-use HubSpot\Client\Crm\Companies\Model\SimplePublicObjectInput as CompanyObject;
 use HubSpot\Client\Crm\Contacts\ApiException;
-use HubSpot\Client\Crm\Contacts\Model\Filter;
-use HubSpot\Client\Crm\Contacts\Model\FilterGroup;
 use HubSpot\Client\Crm\Contacts\Model\SimplePublicObjectInput as ContactObject;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
@@ -34,8 +30,11 @@ trait HubspotContact
 
             $model->hubspot_id = $hubspotContact['id'];
         } catch (ApiException $e) {
-            throw new \Exception('Error creating hubspot contact: '.$e->getResponseBody());
-            Log::error('Error creating hubspot contact: '.$e->getResponseBody());
+            Log::error('Error creating hubspot contact', [
+                'email' => $model->email,
+                'message' => $e->getMessage(),
+                'response' => $e->getResponseBody(),
+            ]);
 
             return;
         }
@@ -63,7 +62,13 @@ trait HubspotContact
         try {
             $hubspotContact = Hubspot::crm()->contacts()->basicApi()->update($model->hubspot_id, $model->hubspotPropertiesObject($model->hubspotMap));
         } catch (ApiException $e) {
-            Log::error('Hubspot contact update failed', ['email' => $model->email]);
+            Log::error('Hubspot contact update failed', [
+                'email' => $model->email,
+                'message' => $e->getMessage(),
+                'response' => $e->getResponseBody(),
+            ]);
+
+            return;
         }
 
         $hubspotCompany = $model->getRelationValue($model->hubspotCompanyRelation);
@@ -113,7 +118,11 @@ trait HubspotContact
             try {
                 return Hubspot::crm()->contacts()->basicApi()->getById($model->hubspot_id);
             } catch (ApiException $e) {
-                Log::debug('Hubspot contact not found with id', ['id' => $model->id]);
+                Log::debug('Hubspot contact not found with id', [
+                    'id' => $model->id,
+                    'message' => $e->getMessage(),
+                    'response' => $e->getResponseBody(),
+                ]);
             }
         }
 
@@ -124,7 +133,11 @@ trait HubspotContact
             // dont save to prevent loop from model event
             $model->hubspot_id = $hubspotContact['id'];
         } catch (ApiException $e) {
-            Log::debug('Hubspot contact not found with email', ['email' => $model->email]);
+            Log::debug('Hubspot contact not found with email', [
+                'email' => $model->email,
+                'message' => $e->getMessage(),
+                'response' => $e->getResponseBody(),
+            ]);
         }
 
         return $hubspotContact;
