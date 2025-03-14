@@ -12,7 +12,7 @@ This is where your description should go. Limit it to a paragraph or two. Consid
 You can install the package via composer:
 
 ```bash
-composer require tappnetwork/laravel-hubspot
+composer require tapp/laravel-hubspot
 ```
 
 You can publish and run the migrations with:
