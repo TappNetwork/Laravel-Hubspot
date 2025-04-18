@@ -2,10 +2,10 @@
 
 namespace Tapp\LaravelHubSpot\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 use HubSpot\Client\Crm\Properties\Model\PropertyCreate;
 use HubSpot\Client\Crm\Properties\Model\PropertyGroupCreate;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Tapp\LaravelHubSpot\Facades\HubSpot;
 
 class SyncHubSpotProperties extends Command

@@ -5,8 +5,6 @@ namespace Tapp\LaravelHubSpot;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
-use GuzzleHttp\Utils;
-use Illuminate\Support\Facades\Log;
 use Psr\Http\Message\RequestInterface;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -39,6 +37,7 @@ class LaravelHubSpotServiceProvider extends PackageServiceProvider
             $stack->push(
                 Middleware::mapRequest(function (RequestInterface $r) {
                     \Log::info('HubSpot Request: '.$r->getMethod().' '.$r->getUri());
+
                     return $r;
                 })
             );

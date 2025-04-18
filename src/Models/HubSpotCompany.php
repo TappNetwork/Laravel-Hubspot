@@ -2,12 +2,12 @@
 
 namespace Tapp\LaravelHubSpot\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
 use HubSpot\Client\Crm\Companies\ApiException;
 use HubSpot\Client\Crm\Companies\Model\Filter;
 use HubSpot\Client\Crm\Companies\Model\FilterGroup;
 use HubSpot\Client\Crm\Companies\Model\PublicObjectSearchRequest;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use Tapp\LaravelHubSpot\Facades\HubSpot;
 
 trait HubSpotCompany
