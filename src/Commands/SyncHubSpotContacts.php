@@ -1,25 +1,25 @@
 <?php
 
-namespace Tapp\LaravelHubspot\Commands;
+namespace Tapp\LaravelHubSpot\Commands;
 
 use Illuminate\Console\Command;
-use Tapp\LaravelHubspot\Models\HubspotContact;
+use Tapp\LaravelHubSpot\Models\HubSpotContact;
 
-class SyncHubspotContacts extends Command
+class SyncHubSpotContacts extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'hubspot:sync-contacts {model=\App\Models\User}';
+    protected $signature = 'hubspot:sync-contacts';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Create missing hubspot contacts.';
+    protected $description = 'Sync contacts with HubSpot';
 
     /**
      * Create a new command instance.
@@ -36,14 +36,12 @@ class SyncHubspotContacts extends Command
      */
     public function handle(): int
     {
-        $contactModel = $this->argument('model');
-
-        $contacts = $contactModel::all();
+        $contacts = HubSpotContact::all();
 
         foreach ($contacts as $contact) {
-            HubspotContact::updateOrCreateHubspotContact($contact);
+            HubSpotContact::updateOrCreateHubSpotContact($contact);
         }
 
-        return Command::SUCCESS;
+        return self::SUCCESS;
     }
 }

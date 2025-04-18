@@ -1,42 +1,41 @@
 <?php
 
-namespace Tapp\LaravelHubspot\Models;
+namespace Tapp\LaravelHubSpot\Models;
 
-use HubSpot\Client\Crm\Associations\V4\ApiException as AssociationsApiException;
-use HubSpot\Client\Crm\Associations\V4\Model\AssociationSpec;
 use HubSpot\Client\Crm\Contacts\ApiException;
 use HubSpot\Client\Crm\Contacts\Model\SimplePublicObjectInput as ContactObject;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
-use Tapp\LaravelHubspot\Facades\Hubspot;
+use Tapp\LaravelHubSpot\Facades\HubSpot;
 
-trait HubspotContact
+trait HubSpotContact
 {
     // TODO put these in an interface
     // public array $hubspotMap = [];
     // public string $hubspotCompanyRelation = '';
 
-    public static function bootHubspotContact(): void
+    public static function bootHubSpotContact(): void
     {
-        static::creating(fn (Model $model) => static::updateOrCreateHubspotContact($model));
+        static::creating(fn (Model $model) => static::updateOrCreateHubSpotContact($model));
 
-        static::updating(fn (Model $model) => static::updateOrCreateHubspotContact($model));
+        static::updating(fn (Model $model) => static::updateOrCreateHubSpotContact($model));
     }
 
-    public static function createHubspotContact($model)
+    public static function createHubSpotContact($model)
     {
         try {
-            $hubspotContact = Hubspot::crm()->contacts()->basicApi()->create($model->hubspotPropertiesObject($model->hubspotMap));
+            $hubSpotContact = HubSpot::crm()->contacts()->basicApi()->create($model->hubSpotPropertiesObject($model->hubSpotMap));
 
-            $model->hubspot_id = $hubspotContact['id'];
+            $model->hubspot_id = $hubSpotContact['id'];
+
+            return $hubSpotContact;
         } catch (ApiException $e) {
-            Log::error('Error creating hubspot contact', [
+            Log::error('HubSpot contact creation failed', [
                 'email' => $model->email,
-                'message' => $e->getMessage(),
-                'response' => $e->getResponseBody(),
+                'error' => $e->getMessage(),
             ]);
 
-            return;
+            return null;
         }
 
         $hubspotCompany = $model->getRelationValue($model->hubspotCompanyRelation);

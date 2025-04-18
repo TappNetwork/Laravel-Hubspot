@@ -1,18 +1,17 @@
 <?php
 
-namespace Tapp\LaravelHubspot;
+namespace Tapp\LaravelHubSpot;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
-use GuzzleHttp\Utils;
 use Psr\Http\Message\RequestInterface;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Tapp\LaravelHubspot\Commands\SyncHubspotContacts;
-use Tapp\LaravelHubspot\Commands\SyncHubspotProperties;
+use Tapp\LaravelHubSpot\Commands\SyncHubSpotContacts;
+use Tapp\LaravelHubSpot\Commands\SyncHubSpotProperties;
 
-class LaravelHubspotServiceProvider extends PackageServiceProvider
+class LaravelHubSpotServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {
@@ -30,24 +29,22 @@ class LaravelHubspotServiceProvider extends PackageServiceProvider
             ->hasCommand(SyncHubspotContacts::class);
     }
 
-    public function bootingPackage()
+    public function packageRegistered()
     {
-        $this->app->bind(LaravelHubspot::class, function ($app) {
+        $this->app->bind(LaravelHubSpot::class, function ($app) {
+            $stack = HandlerStack::create();
 
-            $stack = new HandlerStack;
-            $stack->setHandler(Utils::chooseHandler());
+            $stack->push(
+                Middleware::mapRequest(function (RequestInterface $r) {
+                    \Log::info('HubSpot Request: '.$r->getMethod().' '.$r->getUri());
 
-            $stack->push(Middleware::mapRequest(function (RequestInterface $r) {
-                if (config('hubspot.log_requests')) {
-                    \Log::info('Hubspot Request: '.$r->getMethod().' '.$r->getUri());
-                }
-
-                return $r;
-            }));
+                    return $r;
+                })
+            );
 
             $client = new Client(['handler' => $stack]);
 
-            return LaravelHubspot::createWithAccessToken(config('hubspot.api_key'), $client);
+            return LaravelHubSpot::createWithAccessToken(config('hubspot.api_key'), $client);
         });
     }
 }
