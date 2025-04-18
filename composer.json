@@ -1,7 +1,11 @@
 {
     "name": "tapp/laravel-hubspot",
     "description": "This is my package laravel-hubspot",
-    "keywords": ["TappNetwork", "laravel", "laravel-hubspot"],
+    "keywords": [
+        "TappNetwork",
+        "laravel",
+        "laravel-hubspot"
+    ],
     "homepage": "https://github.com/tappnetwork/laravel-hubspot",
     "license": "MIT",
     "authors": [
@@ -32,13 +36,14 @@
     },
     "autoload": {
         "psr-4": {
-            "Tapp\\LaravelHubspot\\": "src/",
-            "Tapp\\LaravelHubspot\\Database\\Factories\\": "database/factories/"
+            "Tapp\\LaravelHubSpot\\": "src/",
+            "Tapp\\LaravelHubSpot\\Database\\Factories\\": "database/factories/",
+            "Tapp\\LaravelHubSpot\\Database\\Seeders\\": "database/seeders/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Tapp\\LaravelHubspot\\Tests\\": "tests/",
+            "Tapp\\LaravelHubSpot\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
         }
     },
@@ -70,10 +75,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Tapp\\LaravelHubspot\\LaravelHubspotServiceProvider"
+                "Tapp\\LaravelHubSpot\\LaravelHubSpotServiceProvider"
             ],
             "aliases": {
-                "LaravelHubspot": "Tapp\\LaravelHubspot\\Facades\\LaravelHubspot"
+                "LaravelHubSpot": "Tapp\\LaravelHubSpot\\Facades\\HubSpot"
             }
         }
     },
